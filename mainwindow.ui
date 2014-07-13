@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>842</width>
+    <height>745</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>12</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,4,4">
+    <item>
+     <widget class="QGroupBox" name="gbSearch">
+      <property name="title">
+       <string>Поиск</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="leSearch"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QRadioButton" name="rbSearchRequests">
+             <property name="text">
+              <string>Заявки</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rbSearchCartridges">
+             <property name="text">
+              <string>Картриджи</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblSearchIn">
+             <property name="text">
+              <string>Поиск по полю:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_11">
+         <item>
+          <widget class="QPushButton" name="pbSearch">
+           <property name="text">
+            <string>Найти</string>
+           </property>
+           <property name="icon">
+            <iconset resource="res.qrc">
+             <normaloff>:/pic/action_search.png</normaloff>:/pic/action_search.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cbSearchIn"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+      <zorder></zorder>
+      <zorder></zorder>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="gbResult">
+      <property name="title">
+       <string>Результаты поиска</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QTableWidget" name="twResult"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="3,1">
+      <item>
+       <widget class="QGroupBox" name="gbEditor">
+        <property name="title">
+         <string>Редактор заявок</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_9" stretch="8,1">
+         <item>
+          <widget class="QStackedWidget" name="swRecordInfo">
+           <property name="currentIndex">
+            <number>1</number>
+           </property>
+           <widget class="QWidget" name="requestPage">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <item>
+                  <widget class="QLabel" name="label_13">
+                   <property name="text">
+                    <string>Номер:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_14">
+                   <property name="text">
+                    <string>Дата:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_15">
+                   <property name="text">
+                    <string>Автор:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_16">
+                   <property name="text">
+                    <string>Подразделние:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_17">
+                   <property name="text">
+                    <string>Картридж:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_18">
+                   <property name="text">
+                    <string>Исполнитель:</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_8">
+                 <item>
+                  <widget class="QLineEdit" name="leRequestID">
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                   <property name="placeholderText">
+                    <string>Это поле назначается автоматически</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDateTimeEdit" name="dtRequestDate">
+                   <property name="calendarPopup">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="leRequestEnvoy">
+                   <property name="placeholderText">
+                    <string>Например, Петров И. В.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cbRequestDepartment"/>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="leRequestCartridge">
+                   <property name="placeholderText">
+                    <string>Введите номер картриджа, который Вам выдали</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cbRequestExecutor"/>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="cartridgePage">
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Номер:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_8">
+                 <property name="text">
+                  <string>Модель:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_9">
+                 <property name="text">
+                  <string>Производитель:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_10">
+                 <property name="text">
+                  <string>Цикл:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_11">
+                 <property name="text">
+                  <string>Статус:</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <widget class="QLineEdit" name="leCartridgeID">
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>Это поле назначается автоматически</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="cbCartridgeModel"/>
+               </item>
+               <item>
+                <widget class="QComboBox" name="cbCartridgeVendor">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="leCartridgeCycle">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="placeholderText">
+                  <string>По умолчанию значение &quot;0&quot;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="cbCartridgeStatus"/>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1,1,10">
+           <item>
+            <widget class="QToolButton" name="tbAddRecord">
+             <property name="text">
+              <string>+</string>
+             </property>
+             <property name="icon">
+              <iconset resource="res.qrc">
+               <normaloff>:/pic/action_new.png</normaloff>:/pic/action_new.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="tbEditRecord">
+             <property name="text">
+              <string>=</string>
+             </property>
+             <property name="icon">
+              <iconset resource="res.qrc">
+               <normaloff>:/pic/action_edit.png</normaloff>:/pic/action_edit.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="tbDeleteRecord">
+             <property name="text">
+              <string>--</string>
+             </property>
+             <property name="icon">
+              <iconset resource="res.qrc">
+               <normaloff>:/pic/action_delete.png</normaloff>:/pic/action_delete.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="tbClearForm">
+             <property name="text">
+              <string>0</string>
+             </property>
+             <property name="icon">
+              <iconset resource="res.qrc">
+               <normaloff>:/pic/action_null.png</normaloff>:/pic/action_null.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="gbStatistics">
+        <property name="title">
+         <string>Статистика</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="10,1">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Всего:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Используется:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>На складе:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>На заправке:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Неисправно:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Заявок:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QLabel" name="lblTotalValue">
+             <property name="text">
+              <string>0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblUseValue">
+             <property name="text">
+              <string>0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblWireValue">
+             <property name="text">
+              <string>0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblServiceValue">
+             <property name="text">
+              <string>0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblBrokenValue">
+             <property name="text">
+              <string>0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblMiddleValue">
+             <property name="text">
+              <string>0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+        <zorder></zorder>
+        <zorder></zorder>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>842</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Заявка</string>
+    </property>
+    <addaction name="requestNew"/>
+    <addaction name="requestEdit"/>
+    <addaction name="requestDelete"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+    <widget class="QMenu" name="menu_4">
+     <property name="title">
+      <string>Картриджи</string>
+     </property>
+     <addaction name="cartridgeModelAction"/>
+     <addaction name="cartridgeVendorAction"/>
+    </widget>
+    <addaction name="prefDatabase"/>
+    <addaction name="prefEmploye"/>
+    <addaction name="prefDepartment"/>
+    <addaction name="menu_4"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="requestNew">
+   <property name="text">
+    <string>Новая</string>
+   </property>
+  </action>
+  <action name="requestEdit">
+   <property name="text">
+    <string>Редактировать</string>
+   </property>
+  </action>
+  <action name="requestDelete">
+   <property name="text">
+    <string>Удалить</string>
+   </property>
+  </action>
+  <action name="action_4">
+   <property name="text">
+    <string>Новый</string>
+   </property>
+  </action>
+  <action name="cartridgeEdit">
+   <property name="text">
+    <string>Редактировать</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>Удалить</string>
+   </property>
+  </action>
+  <action name="cartridgeModel">
+   <property name="text">
+    <string>Модель</string>
+   </property>
+  </action>
+  <action name="cartridgeVendor">
+   <property name="text">
+    <string>Производитель</string>
+   </property>
+  </action>
+  <action name="cartridgeCompatibility">
+   <property name="text">
+    <string>Совместимость</string>
+   </property>
+  </action>
+  <action name="prefDatabase">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/pic/pref_db.png</normaloff>:/pic/pref_db.png</iconset>
+   </property>
+   <property name="text">
+    <string>База данных</string>
+   </property>
+  </action>
+  <action name="prefEmploye">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/pic/pref_employe.png</normaloff>:/pic/pref_employe.png</iconset>
+   </property>
+   <property name="text">
+    <string>Сотрудники</string>
+   </property>
+  </action>
+  <action name="prefDepartment">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/pic/pref_struct.png</normaloff>:/pic/pref_struct.png</iconset>
+   </property>
+   <property name="text">
+    <string>Подразделения</string>
+   </property>
+  </action>
+  <action name="cartridgeModelAction">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/pic/pref_cartridge_model.png</normaloff>:/pic/pref_cartridge_model.png</iconset>
+   </property>
+   <property name="text">
+    <string>Модель</string>
+   </property>
+  </action>
+  <action name="cartridgeVendorAction">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/pic/pref_cartridge_vendor.png</normaloff>:/pic/pref_cartridge_vendor.png</iconset>
+   </property>
+   <property name="text">
+    <string>Производитель</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>leSearch</tabstop>
+  <tabstop>pbSearch</tabstop>
+  <tabstop>rbSearchRequests</tabstop>
+  <tabstop>rbSearchCartridges</tabstop>
+  <tabstop>cbSearchIn</tabstop>
+  <tabstop>twResult</tabstop>
+  <tabstop>tbAddRecord</tabstop>
+  <tabstop>tbEditRecord</tabstop>
+  <tabstop>tbDeleteRecord</tabstop>
+  <tabstop>tbClearForm</tabstop>
+ </tabstops>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <file>prefDatabaseDialog.ui</file>
+        <file>tableEditor.ui</file>
+        <file>modelDialog.ui</file>
+        <file>null.png</file>
+        <file>pic/pref_db.png</file>
+        <file>pic/pref_employe.png</file>
+        <file>pic/pref_struct.png</file>
+        <file>pic/action_search.png</file>
+        <file>pic/action_delete.png</file>
+        <file>pic/action_edit.png</file>
+        <file>pic/action_new.png</file>
+        <file>pic/action_null.png</file>
+        <file>pic/action_accept.png</file>
+        <file>pic/pref_cartridge_model.png</file>
+        <file>pic/pref_cartridge_vendor.png</file>
+        <file>logDialog.ui</file>
+        <file>pic/log_error.png</file>
+        <file>pic/log_ok.png</file>
+        <file>pic/log_s_error.png</file>
+        <file>pic/log_s_ok.png</file>
+        <file>pic/log_s_warn.png</file>
+        <file>pic/log_warn.png</file>
+    </qresource>
+</RCC>
