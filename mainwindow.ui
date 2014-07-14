@@ -312,7 +312,7 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1,1,10">
+          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1,1,10,1">
            <item>
             <widget class="QToolButton" name="tbAddRecord">
              <property name="text">
@@ -393,6 +393,23 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item>
+            <widget class="QToolButton" name="tbLog">
+             <property name="text">
+              <string>O</string>
+             </property>
+             <property name="icon">
+              <iconset resource="res.qrc">
+               <normaloff>:/pic/log_s_ok.png</normaloff>:/pic/log_s_ok.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -663,7 +680,6 @@
   <tabstop>tbAddRecord</tabstop>
   <tabstop>tbEditRecord</tabstop>
   <tabstop>tbDeleteRecord</tabstop>
-  <tabstop>tbClearForm</tabstop>
  </tabstops>
  <resources>
   <include location="res.qrc"/>

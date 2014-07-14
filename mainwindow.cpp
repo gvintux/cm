@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     showAllRecords();
     updateStatistics();
     timer.start(3000);
-    logDialog->show();
+    toLog(LOG_ERR, "test");
 }
 
 MainWindow::~MainWindow()
@@ -59,18 +59,30 @@ void MainWindow::toLog(int type, QString msg)
         label = new QIcon(QPixmap(":pic/log_ok.png"));
         label->setThemeName("INF");
         lwi->setTextColor(Qt::darkGreen);
+        if(ui->tbLog->text()!="E" && ui->tbLog->text()!="W")
+        {
+            ui->tbLog->setText("O");
+            ui->tbLog->setIcon(QIcon(QPixmap(":pic/log_s_ok.png")));
+        }
         break;
 
         case LOG_WARN:
         label = new QIcon(QPixmap(":pic/log_warn.png"));
         label->setThemeName("WRN");
         lwi->setTextColor(Qt::darkYellow);
+        if(ui->tbLog->text()!="E")
+        {
+            ui->tbLog->setText("W");
+            ui->tbLog->setIcon(QIcon(QPixmap(":pic/log_s_warn.png")));
+        }
         break;
 
         case LOG_ERR:
         label = new QIcon(QPixmap(":pic/log_error.png"));
         label->setThemeName("ERR");
         lwi->setTextColor(Qt::darkRed);
+        ui->tbLog->setText("E");
+        ui->tbLog->setIcon(QIcon(QPixmap(":pic/log_s_error.png")));
         break;
     }
 
@@ -98,6 +110,7 @@ void MainWindow::buildGUI()
     twTable = ui->twResult;
     twTable->setEditTriggers(twTable->NoEditTriggers);
     loadDialogs();
+
     //
 
 }
@@ -115,6 +128,7 @@ void MainWindow::makeConnections()
     connect(pbSearch, SIGNAL(clicked()), this, SLOT(doSearch()));
     connect(&timer, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     connect(twTable, SIGNAL(cellClicked(int,int)), this, SLOT(updateEditorFields(int,int)));
+    connect(ui->tbLog, SIGNAL(clicked()), logDialog, SLOT(show()));
     linkDialogs();
     linkMenu();
 
@@ -878,6 +892,8 @@ void MainWindow::showModelDialog()
 void MainWindow::clearLog()
 {
     lwLogList->clear();
+    ui->tbLog->setIcon(QIcon(QPixmap(":pic/log_s_ok.png")));
+    ui->tbLog->setText("O");
 }
 
 void MainWindow::exportLog()
@@ -990,7 +1006,7 @@ void MainWindow::newRecord()
         ui->leRequestEnvoy->setFocus();
     }
 
-
+    showAllRecords();
 }
 
 void MainWindow::editRecord()
@@ -1041,16 +1057,21 @@ void MainWindow::deleteRecord()
     QSqlQuery q(database);
     if(rbCartridges->isChecked())
     {
-
+        QString cartridgeID = ui->leCartridgeID->text();
+        if(q.exec("DELETE FROM cartridge WHERE cartridge_id=" + cartridgeID))
+        {
+            statusBar()->showMessage("deleteRecord(): ok");
+        }
+        else statusBar()->showMessage("deleteRecord(): error");
     }
     else
     {
         QString requestID = ui->leRequestID->text();
         if(q.exec("DELETE FROM request WHERE request_id=" + requestID))
         {
-            showAllRecords();
             statusBar()->showMessage("deleteRecord(): ok");
         }
         else statusBar()->showMessage("deleteRecord(): error");
     }
+    showAllRecords();
 }
