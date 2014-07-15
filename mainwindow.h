@@ -32,6 +32,8 @@
 #include <QVariant>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QMessageBox>
+#include <mylineedit.h>
 
 
 const int               LOG_OK      = 0;
@@ -65,7 +67,6 @@ private:
     QComboBox*              cbSearchIn;
     QStackedWidget*         swEditor;
     QSqlDatabase            database;
-    QString                 imagePath;
 
     QTimer                  timer;
 

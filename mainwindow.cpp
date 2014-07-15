@@ -7,20 +7,18 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     //
     this->setWindowIcon(QIcon(":/null.png"));
-    imagePath = "./pic";
     ui->setupUi(this);
     loadSets();
     buildGUI();
     makeConnections();
-    updateFieldsCombo();
     connectDB();
+    updateFieldsCombo();
     updateEditor();
     updatePrefEmployeDialog();
     updatePrefDepartmentDialog();
     showAllRecords();
     updateStatistics();
     timer.start(3000);
-    toLog(LOG_ERR, "test");
 }
 
 MainWindow::~MainWindow()
@@ -109,6 +107,9 @@ void MainWindow::buildGUI()
     leSearch = ui->leSearch;
     twTable = ui->twResult;
     twTable->setEditTriggers(twTable->NoEditTriggers);
+    MyLineEdit *myle = new MyLineEdit();
+    ui->leSearch = myle;
+    connect(myle, SIGNAL(enterPressed()), pbSearch, SLOT(click()));
     loadDialogs();
 
     //
@@ -518,8 +519,7 @@ void MainWindow::updateStatistics()
     ui->lblBrokenValue->setText(broken);
     ui->lblTotalValue->setText(total);
     ui->lblMiddleValue->setText(requests);
-    //TODO: auto update time in request form
-//    ui->dtRequestDate->setDateTime(QDateTime::fromString(QDateTime::currentDateTime(), QString("dd.MM.yy hh:mm")));
+    ui->dtRequestDate->setDateTime(QDateTime::currentDateTime());
 }
 
 void MainWindow::linkDialogs()
@@ -806,7 +806,7 @@ void MainWindow::doSearch()
             for(int i = 0; i < cols; ++i)
             {
                 QString value = q.value(i).toString();
-                if(i == 1) value = QDateTime::fromString(value, "yyyy-MM-ddThh:mm:ss").toString("dd.MM.yy hh:mm");
+                if(i == 1 && rbRequests->isChecked()) value = QDateTime::fromString(value, "yyyy-MM-ddThh:mm:ss").toString("dd.MM.yy hh:mm");
                 QTableWidgetItem* twi = new QTableWidgetItem(value);
                 twi->setTextAlignment(Qt::AlignCenter);
                 twTable->setItem(row, i, twi);
@@ -815,9 +815,9 @@ void MainWindow::doSearch()
         }
         twTable->setHorizontalHeaderLabels(hLabels);
         twTable->resizeColumnsToContents();
-        statusBar()->showMessage("doSearch(): ok");
+        toLog(LOG_OK, tr("Поиск выполнен успешно"));
     }
-    else statusBar()->showMessage("doSearch(): error");
+    else toLog(LOG_ERR, tr("Поиск не выполнен: ") + q.lastError().text());
 
 
 }
@@ -841,9 +841,9 @@ void MainWindow::newModel()
     query = query.arg(newModelName).arg(vendorID).arg(modelCompatibility) + pic + "')";
     if(q.exec(query))
     {
-        statusBar()->showMessage("newModel(): ok");
+        toLog(LOG_OK, tr("Новая модель картриджа добавлена успешно"));
     }
-    else qDebug()<< q.lastError().text();//statusBar()->showMessage("newModel(): error");
+    else toLog(LOG_ERR, tr("Не удалось добавить новую модель картриджа: ") + q.lastError().text());
     updateModelDialog();
 
 }
@@ -866,9 +866,9 @@ void MainWindow::editModel()
     query = query.arg(modelName).arg(vendorID).arg(modelCompatibility).arg(modelID);
     if(q.exec(query))
     {
-        statusBar()->showMessage("editModel(): ok");
+        toLog(LOG_OK, tr("Редактирование модели картриджа успешно"));
     }
-    else qDebug() << q.lastError().text();//statusBar()->showMessage("editModel(): error");
+    else toLog(LOG_ERR, tr("Не удалоь отредактировать модель картриджа"));
     updateModelDialog();
 }
 
@@ -877,8 +877,9 @@ void MainWindow::deleteModel()
     QComboBox* cbModel = modelDialog->findChild<QComboBox*>("cbModel");
     QString modelID = cbModel->currentData().toString();
     QSqlQuery q(database);
-    if(q.exec(QString("DELETE FROM model WHERE model_id=%1").arg(modelID))) statusBar()->showMessage("deleteModel(): ok");
-    else statusBar()->showMessage("deleteModel(): error");
+    if(q.exec(QString("DELETE FROM model WHERE model_id=%1").arg(modelID)))
+    toLog(LOG_OK, tr("Модель картриджа удалена успешно"));
+    else toLog(LOG_ERR, tr("Не удалось удалить модель картриджа"));
     updateModelDialog();
 }
 
@@ -905,14 +906,17 @@ void MainWindow::exportLog()
     {
         QString filePath = dlg.selectedFiles().at(0);
         QFile f(filePath);
-            f.open(QFile::WriteOnly);
-            QTextStream out(&f);
-            int count = lwLogList->count();
-            for(int i = 0; i < count; ++i)
-                {
-                    out << lwLogList->item(i)->icon().themeName()<< ": " << lwLogList->item(i)->text() << endl;
-                }
+            if(f.open(QFile::WriteOnly))
+            {
+                QTextStream out(&f);
+                int count = lwLogList->count();
+                for(int i = 0; i < count; ++i)
+                        out << lwLogList->item(i)->icon().themeName()<< ": " << lwLogList->item(i)->text() << endl;
             f.close();
+            toLog(LOG_OK, tr("Экспорт журнала выполнен успешно"));
+            }
+            else toLog(LOG_WARN, tr("Не удалось экспортировать журнал"));
+
     }
 }
 
@@ -961,7 +965,6 @@ void MainWindow::newRecord()
     QString query;
     if(rbCartridges->isChecked())
     {
-//        QString cartridgeID = ui->leCartridgeID->text();
         QString modelId = ui->cbCartridgeModel->currentData().toString();
         QString cartridgeCycle = ui->leCartridgeCycle->text().trimmed();
         QString statusID = ui->cbCartridgeStatus->currentData().toString();
@@ -969,9 +972,17 @@ void MainWindow::newRecord()
         query = query.arg(modelId).arg(cartridgeCycle).arg(statusID);
         if(q.exec(query))
         {
-            statusBar()->showMessage("newRecord(): ok");
+            if(q.exec("SELECT LAST_INSERT_ID()"))
+            {
+                q.first();
+                lastID = q.value(0).toString();
+                QString msg = tr("Картридж № %1 добавлен.\nНе забудьте наклеить наклейку");
+                msg = msg.arg(lastID);
+                QMessageBox::information(this, tr("Новый картридж"), msg, QMessageBox::Ok);
+                toLog(LOG_OK, tr("Новый картридж добавлен успешно"));
+            }
         }
-        else statusBar()->showMessage("newRecord(): error");
+        toLog(LOG_ERR, tr("Не удалось добавить новый картридж: ") + q.lastError().text());
     }
     else
     {
@@ -993,19 +1004,29 @@ void MainWindow::newRecord()
                     if(q.exec(QString("UPDATE cartridge SET cartridge_status = 1 WHERE cartridge_id = %1").arg(requestCartridgeID)))
                     {
 
-                        statusBar()->showMessage("newRecord(): ok");
+                        toLog(LOG_OK, tr("Новая заявка добавлена успешно"));
+                        QMessageBox::information(this, tr("Новая заявка"), tr("Новая заявка оформлена.\nСпасибо за пользование сервисом!"), QMessageBox::Ok, QMessageBox::NoButton);
+
+
                     }
-                    else statusBar()->showMessage("newRecord(): error");
+                    else toLog(LOG_WARN, tr("Новая заявка добавлена, но не удалось изменить статус картриджа: ") + q.lastError().text());
                 }
-                else statusBar()->showMessage("newRecord(): error");
+                else
+                {
+                    toLog(LOG_ERR, tr("Не удалось добавить новую заявку: ") + q.lastError().text());
+                    QMessageBox::critical(this, tr("Ошибка"), tr("Не удалось добавить новую заявку.\nПодробности в журнале."), QMessageBox::Ok, QMessageBox::NoButton);
+                }
             }
-            else statusBar()->showMessage("newRecord(): error");
+            else
+            {
+                toLog(LOG_WARN, tr("Не удалось добавить новую заявку: такого картриджа нет на складе"));
+                QMessageBox::warning(this, tr("Ошибка"), tr("Не удалось добавить новую заявку.\nПодробности в журнале."), QMessageBox::Ok, QMessageBox::NoButton);
+            }
 
         }
-        else statusBar()->showMessage("newRecord(): error");
+        else toLog(LOG_ERR, tr("Не удалось добавить заявку, т.к. не удалось запросить наличие картриджа на складе: ") + q.lastError().text());
         ui->leRequestEnvoy->setFocus();
     }
-
     showAllRecords();
 }
 

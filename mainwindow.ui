@@ -19,7 +19,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,4,4">
+   <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,4,3">
     <item>
      <widget class="QGroupBox" name="gbSearch">
       <property name="title">
@@ -29,7 +29,14 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QLineEdit" name="leSearch"/>
+          <widget class="QLineEdit" name="leSearch">
+           <property name="placeholderText">
+            <string>Выберите критерий поиска и введите искомый текст</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
