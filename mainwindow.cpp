@@ -120,8 +120,8 @@ void MainWindow::makeConnections()
 {
     connect(rbCartridges, SIGNAL(clicked()), this, SLOT(updateFieldsCombo()));
     connect(rbRequests, SIGNAL(clicked()), this, SLOT(updateFieldsCombo()));
-    connect(rbRequests, SIGNAL(clicked()), this, SLOT(updateEditor()));
-    connect(rbCartridges, SIGNAL(clicked()), this, SLOT(updateEditor()));
+    //connect(rbRequests, SIGNAL(clicked()), this, SLOT(updateEditor()));
+    //connect(rbCartridges, SIGNAL(clicked()), this, SLOT(updateEditor()));
     connect(tbNewRecord, SIGNAL(clicked()), this, SLOT(newRecord()));
     connect(tbEditRecord, SIGNAL(clicked()), this, SLOT(editRecord()));
     connect(tbDeleteRecord, SIGNAL(clicked()), this, SLOT(deleteRecord()));
@@ -157,6 +157,7 @@ void MainWindow::updateFieldsCombo()
         cartridgeFields << tr("Номер")  << tr("Модель")  << tr("Производитель")  << tr("Цикл")  << tr("Статус")  << tr("Совместимость");
         cbSearchIn->addItems(cartridgeFields);
         swEditor->setCurrentIndex(1);
+        updateEditorSelected(0);
         ui->gbEditor->setTitle(tr("Редактор картриджей"));
     }
     else
@@ -228,6 +229,12 @@ void MainWindow::updateModelDialog()
         toLog(LOG_OK, tr("Выборка списка моделей картриджей успешна"));
     }
     else toLog(LOG_ERR, tr("Не удалось запросить список моделей картриджей: ") + q.lastError().text());
+
+    if(cbModel->currentText().isEmpty())
+    {
+        QLabel* lbImage = modelDialog->findChild<QLabel*>("lbImage");
+        lbImage->setPixmap(QPixmap(":/null.png").scaled(512, 512, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
 }
 
 void MainWindow::updatePrefDepartmentDialog()
@@ -325,6 +332,7 @@ void MainWindow::updateEditor()
         toLog(LOG_OK, tr("Выборка списка состояний картриджей успешна"));
     }
     else toLog(LOG_ERR, tr("Не удалось запросить список состояний картриджей: ") + q.lastError().text());
+//    cb
 }
 
 void MainWindow::setFilePath()
@@ -404,6 +412,19 @@ void MainWindow::loadSets()
 
 void MainWindow::saveSets()
 {
+    QLineEdit *param = prefDatabaseDialog->findChild<QLineEdit*>("leServer");
+    if(param->text().length() > 0) server = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("lePort");
+    if(param->text().length() > 0) port = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("leDatabase");
+    if(param->text().length() > 0) db = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("leUser");
+    if(param->text().length() > 0) user = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("lePassword");
+    if(param->text().length() > 0) password = param->text().trimmed();
+    QSpinBox *spBox  = prefDatabaseDialog->findChild<QSpinBox*>("sbCmpRatio");
+    cmpRatio = spBox->value();
+
     QSettings s;
     s.setValue("server", server);
     s.setValue("port", port);
@@ -509,6 +530,7 @@ void MainWindow::updateStatistics()
     {
         q.first();
         requests = q.value(0).toString();
+        statusBar()->deleteLater();
         statusBar()->showMessage("updateStatistics(): ok");
     }
     else toLog(LOG_ERR, tr("Не удалось запросить общее количество заявок: ") + q.lastError().text());
@@ -793,7 +815,6 @@ void MainWindow::doSearch()
         hLabels << tr("Номер")  << tr("Дата")  << tr("Автор")  << tr("Подразделение")  << tr("Картридж")  << tr("Исполнитель");
     }
     twTable->clear();
-    qDebug() << query + filter + orderBy;
     if(q.exec(query + filter + orderBy))
     {
         int row = 0;
@@ -967,6 +988,7 @@ void MainWindow::newRecord()
     {
         QString modelId = ui->cbCartridgeModel->currentData().toString();
         QString cartridgeCycle = ui->leCartridgeCycle->text().trimmed();
+        if(cartridgeCycle.isEmpty()) cartridgeCycle = QString::number(0);
         QString statusID = ui->cbCartridgeStatus->currentData().toString();
         query = "INSERT INTO cartridge(cartridge_model, cartridge_cycle, cartridge_status) VALUES(%1, %2, %3)";
         query = query.arg(modelId).arg(cartridgeCycle).arg(statusID);
@@ -993,6 +1015,8 @@ void MainWindow::newRecord()
         QString requestExecutorID = ui->cbRequestExecutor->currentData().toString();
         QString query = "INSERT INTO request (request_date, request_envoy, request_department, request_cartridge, request_executor) "
                 "VALUES ('%1', '%2', %3, %4, %5)";
+        if(requestAuthor.length() > 0)
+        {
         query = query.arg(requestDateTime).arg(requestAuthor).arg(requestDepartmentID).arg(requestCartridgeID).arg(requestExecutorID);
         if(q.exec(QString("SELECT COUNT(*) FROM cartridge WHERE cartridge_id = %1 AND cartridge_status = 2").arg(requestCartridgeID)))
         {
@@ -1025,6 +1049,8 @@ void MainWindow::newRecord()
 
         }
         else toLog(LOG_ERR, tr("Не удалось добавить заявку, т.к. не удалось запросить наличие картриджа на складе: ") + q.lastError().text());
+        }
+        else toLog(LOG_ERR, tr("Не удалось добавить заявку: не указан автор заявки"));
         ui->leRequestEnvoy->setFocus();
     }
     showAllRecords();
