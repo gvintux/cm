@@ -13,11 +13,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    mylineedit.cpp
+        mainwindow.cpp
 
-HEADERS  += mainwindow.h \
-    mylineedit.h
+HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui \
     prefDatabaseDialog.ui \

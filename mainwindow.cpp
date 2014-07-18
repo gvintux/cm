@@ -107,21 +107,23 @@ void MainWindow::buildGUI()
     leSearch = ui->leSearch;
     twTable = ui->twResult;
     twTable->setEditTriggers(twTable->NoEditTriggers);
-    MyLineEdit *myle = new MyLineEdit();
-    ui->leSearch = myle;
-    connect(myle, SIGNAL(enterPressed()), pbSearch, SLOT(click()));
     loadDialogs();
-
-    //
-
+    statusBar()->hide();
+    this->setStyleSheet("QMenuBar{background-color: rgba(0,0,0,200); color: rgb(255,255,255);}");
+    ui->gbEditor->setStyleSheet("QGroupBox{background-color: rgb(5,69,104); border-radius: 10px; } QGroupBox::title{padding-left: 20px;}");
+    ui->gbResult->setStyleSheet("QTableWidget{background-color: rgb(50,125,80); border-radius: 10px;}"
+                                "QGroupBox{background-color: rgb(50,125,80); border-radius: 10px; padding-top: 20px;} QGroupBox::title{padding-left: 20px;}"
+                                " QHeaderView{background-color: rgb(50,125,80);}");
+    ui->gbSearch->setStyleSheet("QGroupBox{background-color: rgb(50,125,80); border-radius: 10px; padding-top: 20px;} QGroupBox::title{padding-left: 20px;}");
+    ui->gbStatistics->setStyleSheet("QGroupBox{background-color: rgb(50,125,80); border-radius: 10px; padding-top: 20px;} QGroupBox::title{padding-left: 20px;}");
 }
 
 void MainWindow::makeConnections()
 {
     connect(rbCartridges, SIGNAL(clicked()), this, SLOT(updateFieldsCombo()));
     connect(rbRequests, SIGNAL(clicked()), this, SLOT(updateFieldsCombo()));
-    connect(rbRequests, SIGNAL(clicked()), this, SLOT(updateEditor()));
-    connect(rbCartridges, SIGNAL(clicked()), this, SLOT(updateEditor()));
+    //connect(rbRequests, SIGNAL(clicked()), this, SLOT(updateEditor()));
+    //connect(rbCartridges, SIGNAL(clicked()), this, SLOT(updateEditor()));
     connect(tbNewRecord, SIGNAL(clicked()), this, SLOT(newRecord()));
     connect(tbEditRecord, SIGNAL(clicked()), this, SLOT(editRecord()));
     connect(tbDeleteRecord, SIGNAL(clicked()), this, SLOT(deleteRecord()));
@@ -130,6 +132,7 @@ void MainWindow::makeConnections()
     connect(&timer, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     connect(twTable, SIGNAL(cellClicked(int,int)), this, SLOT(updateEditorFields(int,int)));
     connect(ui->tbLog, SIGNAL(clicked()), logDialog, SLOT(show()));
+    connect(ui->tbClearForm, SIGNAL(clicked()), this, SLOT(clearForm()));
     linkDialogs();
     linkMenu();
 
@@ -157,6 +160,7 @@ void MainWindow::updateFieldsCombo()
         cartridgeFields << tr("Номер")  << tr("Модель")  << tr("Производитель")  << tr("Цикл")  << tr("Статус")  << tr("Совместимость");
         cbSearchIn->addItems(cartridgeFields);
         swEditor->setCurrentIndex(1);
+        updateEditorSelected(0);
         ui->gbEditor->setTitle(tr("Редактор картриджей"));
     }
     else
@@ -228,6 +232,12 @@ void MainWindow::updateModelDialog()
         toLog(LOG_OK, tr("Выборка списка моделей картриджей успешна"));
     }
     else toLog(LOG_ERR, tr("Не удалось запросить список моделей картриджей: ") + q.lastError().text());
+
+    if(cbModel->currentText().isEmpty())
+    {
+        QLabel* lbImage = modelDialog->findChild<QLabel*>("lbImage");
+        lbImage->setPixmap(QPixmap(":/null.png").scaled(512, 512, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
 }
 
 void MainWindow::updatePrefDepartmentDialog()
@@ -325,6 +335,7 @@ void MainWindow::updateEditor()
         toLog(LOG_OK, tr("Выборка списка состояний картриджей успешна"));
     }
     else toLog(LOG_ERR, tr("Не удалось запросить список состояний картриджей: ") + q.lastError().text());
+//    cb
 }
 
 void MainWindow::setFilePath()
@@ -404,6 +415,19 @@ void MainWindow::loadSets()
 
 void MainWindow::saveSets()
 {
+    QLineEdit *param = prefDatabaseDialog->findChild<QLineEdit*>("leServer");
+    if(param->text().length() > 0) server = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("lePort");
+    if(param->text().length() > 0) port = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("leDatabase");
+    if(param->text().length() > 0) db = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("leUser");
+    if(param->text().length() > 0) user = param->text().trimmed();
+    param  = prefDatabaseDialog->findChild<QLineEdit*>("lePassword");
+    if(param->text().length() > 0) password = param->text().trimmed();
+    QSpinBox *spBox  = prefDatabaseDialog->findChild<QSpinBox*>("sbCmpRatio");
+    cmpRatio = spBox->value();
+
     QSettings s;
     s.setValue("server", server);
     s.setValue("port", port);
@@ -509,7 +533,6 @@ void MainWindow::updateStatistics()
     {
         q.first();
         requests = q.value(0).toString();
-        statusBar()->showMessage("updateStatistics(): ok");
     }
     else toLog(LOG_ERR, tr("Не удалось запросить общее количество заявок: ") + q.lastError().text());
 
@@ -676,11 +699,11 @@ void MainWindow::newVendor()
     QString newVendorName = cbVendors->currentText().trimmed();
     if(q.exec(QString("INSERT INTO vendor (vendor_name) VALUE('%1')").arg(newVendorName)))
     {
-        statusBar()->showMessage("newVendor(): ok");
+        toLog(LOG_OK, tr("Новый производитель добавлен успешно"));
         updateVendorDialog();
         updateEditor();
     }
-    else statusBar()->showMessage("newVendor(): error");
+    else toLog(LOG_ERR, tr("Не удалось добавить нового производителя: ") + q.lastError().text());
 }
 
 void MainWindow::editVendor()
@@ -691,11 +714,11 @@ void MainWindow::editVendor()
     QString newVendorName = cbVendors->currentText().trimmed();
     if(q.exec(QString("UPDATE vendor SET vendor_name = '%1' WHERE vendor_id = %2").arg(newVendorName).arg(vendorID)))
     {
-        statusBar()->showMessage("editVendor(): ok");
+        toLog(LOG_OK, tr("Редактирование производителя успешно"));
         updateVendorDialog();
 
     }
-    else statusBar()->showMessage("editVendor(): error");
+    else toLog(LOG_ERR, tr("Не удалось отредактировать производителя: ") + q.lastError().text());
 
 }
 
@@ -708,11 +731,11 @@ void MainWindow::deleteVendor()
     QStringList hLabels;
     if(q.exec(QString("DELETE FROM vendor WHERE vendor_id = %1").arg(vendorID)))
     {
-        statusBar()->showMessage("deleteVendor(): ok");
+        toLog(LOG_OK, tr("Удаление производителя успешно"));
         updateVendorDialog();
 
     }
-    else statusBar()->showMessage("deleteVendor(): error");
+    else toLog(LOG_ERR, tr("Не удалось удалить производителя: ") + q.lastError().text());
 }
 
 void MainWindow::doSearch()
@@ -793,7 +816,6 @@ void MainWindow::doSearch()
         hLabels << tr("Номер")  << tr("Дата")  << tr("Автор")  << tr("Подразделение")  << tr("Картридж")  << tr("Исполнитель");
     }
     twTable->clear();
-    qDebug() << query + filter + orderBy;
     if(q.exec(query + filter + orderBy))
     {
         int row = 0;
@@ -967,6 +989,7 @@ void MainWindow::newRecord()
     {
         QString modelId = ui->cbCartridgeModel->currentData().toString();
         QString cartridgeCycle = ui->leCartridgeCycle->text().trimmed();
+        if(cartridgeCycle.isEmpty()) cartridgeCycle = QString::number(0);
         QString statusID = ui->cbCartridgeStatus->currentData().toString();
         query = "INSERT INTO cartridge(cartridge_model, cartridge_cycle, cartridge_status) VALUES(%1, %2, %3)";
         query = query.arg(modelId).arg(cartridgeCycle).arg(statusID);
@@ -993,6 +1016,8 @@ void MainWindow::newRecord()
         QString requestExecutorID = ui->cbRequestExecutor->currentData().toString();
         QString query = "INSERT INTO request (request_date, request_envoy, request_department, request_cartridge, request_executor) "
                 "VALUES ('%1', '%2', %3, %4, %5)";
+        if(requestAuthor.length() > 0)
+        {
         query = query.arg(requestDateTime).arg(requestAuthor).arg(requestDepartmentID).arg(requestCartridgeID).arg(requestExecutorID);
         if(q.exec(QString("SELECT COUNT(*) FROM cartridge WHERE cartridge_id = %1 AND cartridge_status = 2").arg(requestCartridgeID)))
         {
@@ -1025,6 +1050,8 @@ void MainWindow::newRecord()
 
         }
         else toLog(LOG_ERR, tr("Не удалось добавить заявку, т.к. не удалось запросить наличие картриджа на складе: ") + q.lastError().text());
+        }
+        else toLog(LOG_ERR, tr("Не удалось добавить заявку: не указан автор заявки"));
         ui->leRequestEnvoy->setFocus();
     }
     showAllRecords();
@@ -1040,14 +1067,17 @@ void MainWindow::editRecord()
         QString modelId = ui->cbCartridgeModel->currentData().toString();
         QString cartridgeCycle = ui->leCartridgeCycle->text().trimmed();
         QString statusID = ui->cbCartridgeStatus->currentData().toString();
-
+        if(!cartridgeID.isEmpty())
+        {
         query = "UPDATE cartridge SET cartridge_model=%1, cartridge_cycle = %2, cartridge_status=%3 WHERE cartridge_id=%4";
         query = query.arg(modelId, cartridgeCycle, statusID, cartridgeID);
         if(q.exec(query))
         {
-            statusBar()->showMessage("editRecord(): ok");
+            toLog(LOG_OK, tr("Редактирование картриджа успешно"));
         }
-        else statusBar()->showMessage("editRecord(): error");
+        else toLog(LOG_ERR, tr("Не удалось отредактировать картридж: ") + q.lastError().text());
+        }
+        else toLog(LOG_ERR, tr("Не удалось несуществующий картридж"));
     }
     else
     {
@@ -1062,12 +1092,12 @@ void MainWindow::editRecord()
             query = "UPDATE request SET request_date = '%1', request_envoy = '%2', request_department = %3, request_cartridge = %4, request_executor = '%5' WHERE request_id = %6";
             if(q.exec(query.arg(requestDateTime).arg(requestAuthor).arg(requestDepartmentID).arg(requestCartridgeID).arg(requestExecutorID).arg(requestID)))
             {
-                statusBar()->showMessage("editRecord(): ok");
+                toLog(LOG_OK, tr("Редактирование заявки успешно"));
 
             }
-            else statusBar()->showMessage("editRecord(): error");
+            else toLog(LOG_ERR, tr("Не удалось отредактировать заявку: ") + q.lastError().text());
         }
-        else statusBar()->showMessage("editRecord(): error");
+        else toLog(LOG_ERR, tr("Не удалось несуществующую заявку"));
 
     }
     showAllRecords();
@@ -1079,20 +1109,50 @@ void MainWindow::deleteRecord()
     if(rbCartridges->isChecked())
     {
         QString cartridgeID = ui->leCartridgeID->text();
+        if(!cartridgeID.isEmpty())
+        {
         if(q.exec("DELETE FROM cartridge WHERE cartridge_id=" + cartridgeID))
         {
-            statusBar()->showMessage("deleteRecord(): ok");
+            toLog(LOG_OK, tr("Удаление картриджа успешно"));
         }
-        else statusBar()->showMessage("deleteRecord(): error");
+        else toLog(LOG_ERR, tr("Не удалось удалить картридж: ") + q.lastError().text());
+        }
+        else toLog(LOG_ERR, tr("Не удалось удалить несуществующий картридж"));
+
     }
     else
     {
         QString requestID = ui->leRequestID->text();
+        if(!requestID.isEmpty())
+        {
         if(q.exec("DELETE FROM request WHERE request_id=" + requestID))
         {
-            statusBar()->showMessage("deleteRecord(): ok");
+            toLog(LOG_OK, tr("Удаление заявки успешно"));
         }
-        else statusBar()->showMessage("deleteRecord(): error");
+        else toLog(LOG_ERR, tr("Не удалось удалить заявку: ") + q.lastError().text());
+        }
+        else toLog(LOG_ERR, tr("Не удалось удалить несуществующую заявку"));
+
     }
     showAllRecords();
+}
+
+void MainWindow::clearForm()
+{
+    if(rbCartridges->isChecked())
+    {
+        ui->leCartridgeID->clear();
+        ui->cbCartridgeModel->setCurrentIndex(0);
+        updateEditorSelected(0);
+        leCartridgeCycle->clear();
+        cbCartridgeStatus->setCurrentIndex(0);
+    }
+    else
+    {
+        ui->leRequestID->clear();
+        ui->leRequestEnvoy->clear();
+        ui->leRequestCartridge->clear();
+        ui->cbRequestDepartment->setCurrentIndex(0);
+        ui->cbRequestExecutor->setCurrentIndex(0);
+    }
 }

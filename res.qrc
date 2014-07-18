@@ -22,5 +22,6 @@
         <file>pic/log_s_ok.png</file>
         <file>pic/log_s_warn.png</file>
         <file>pic/log_warn.png</file>
+        <file>pic/pref_cartridge.png</file>
     </qresource>
 </RCC>

@@ -33,8 +33,6 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
-#include <mylineedit.h>
-
 
 const int               LOG_OK      = 0;
 const int               LOG_WARN    = 1;
@@ -151,6 +149,8 @@ private slots:
     void newRecord();
     void editRecord();
     void deleteRecord();
+
+    void clearForm();
 };
 
 #endif // MAINWINDOW_H
