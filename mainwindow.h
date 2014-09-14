@@ -17,10 +17,9 @@
 #include <QtSql/QSqlError>
 #include <QStackedWidget>
 #include <QPixmap>
-#include <QThread>
+
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
+
 #include <QFileDialog>
 #include <QToolButton>
 #include <QPushButton>
@@ -92,6 +91,7 @@ private:
     QDialog*                modelDialog;
     QDialog*                prefDepartmentDialog;
     QDialog*                logDialog;
+    QDialog*                changeCartridgeDialog;
 
     QByteArray              uploadPictrue(QString path);
 
@@ -100,57 +100,53 @@ private:
 
 private slots:
     void buildGUI();
-    void makeConnections();
+    void clearForm();
+    void clearLog();
     void connectDB();
-    void updateFieldsCombo();
-    void updatePrefEmployeDialog();
-    void updateVendorDialog();
-    void updateModelDialog();
-    void updatePrefDepartmentDialog();
-    void updateModelDialogSelected(int);
-    void updateEditorSelected(int);
-    void updateEditor();
-    void setFilePath();
-    void loadDialogs();
-    void loadSets();
-    void saveSets();
-    void linkMenu();
-    void showPrefDatabaseDialog();
-    void showVendorDialog();
-    void showPrefEmployeDialog();
-    void showPrefDepartmentDialog();
-    void updateStatistics();
-
-    void linkDialogs();
-    void newEmploye();
-    void editEmploye();
-    void deleteEmploye();
-
-    void newDepartment();
-    void editDepartment();
     void deleteDepartment();
-    void showAllRecords();
-    void newVendor();
-    void editVendor();
+    void deleteEmploye();
+    void deleteModel();
+    void deleteRecord();
     void deleteVendor();
     void doSearch();
-
-    void newModel();
+    void editDepartment();
+    void editEmploye();
     void editModel();
-    void deleteModel();
-
-    void showModelDialog();
-
-    void clearLog();
-    void exportLog();
-
-    void updateEditorFields(int, int);
-
-    void newRecord();
     void editRecord();
-    void deleteRecord();
+    void editVendor();
+    void exportLog();
+    void linkDialogs();
+    void linkMenu();
+    void loadDialogs();
+    void loadSets();
+    void makeConnections();
+    void newDepartment();
+    void newEmploye();
+    void newModel();
+    void newRecord();
+    void recycle();
+    void newVendor();
+    void saveSets();
+    void setFilePath();
+    void showAllRecords();
+    void showModelDialog();
+    void showPrefDatabaseDialog();
+    void showPrefDepartmentDialog();
+    void showPrefEmployeDialog();
+    void showVendorDialog();
+    void updateEditor();
+    void updateEditorFields(int, int);
+    void updateEditorSelected(int);
+    void updateFieldsCombo();
+    void updateModelDialog();
+    void updateChangeDialog();
+    void updateModelDialogSelected(int);
+    void updatePrefDepartmentDialog();
+    void updatePrefEmployeDialog();
+    void updateStatistics();
+    void updateVendorDialog();
+    void changeCartridge();
 
-    void clearForm();
 };
 
 #endif // MAINWINDOW_H

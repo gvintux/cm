@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateEditor();
     updatePrefEmployeDialog();
     updatePrefDepartmentDialog();
+    updateChangeDialog();
     showAllRecords();
     updateStatistics();
     timer.start(3000);
@@ -25,6 +26,12 @@ MainWindow::~MainWindow()
 {
     saveSets();
     timer.stop();
+    delete prefDatabaseDialog;
+    delete prefDepartmentDialog;
+    delete prefEmployeDialog;
+    delete logDialog;
+    delete modelDialog;
+    delete vendorDialog;
     delete ui;
 }
 
@@ -116,6 +123,11 @@ void MainWindow::buildGUI()
                                 " QHeaderView{background-color: rgb(50,125,80);}");
     ui->gbSearch->setStyleSheet("QGroupBox{background-color: rgb(50,125,80); border-radius: 10px; padding-top: 20px;} QGroupBox::title{padding-left: 20px;}");
     ui->gbStatistics->setStyleSheet("QGroupBox{background-color: rgb(50,125,80); border-radius: 10px; padding-top: 20px;} QGroupBox::title{padding-left: 20px;}");
+    ui->gbEditor->setStyleSheet("QGroupBox{background-color: rgba(5,69,104,200); border-radius: 10px;}");
+    ui->gbResult->setStyleSheet("QTableWidget{background-color: rgba(225,230,105,200); border-radius: 10px;}"
+                                "QGroupBox{background-color: rgba(225,230,105,200); border-radius: 10px; padding-top: 20px;}");
+    ui->gbSearch->setStyleSheet("QGroupBox{background-color: rgba(100,200,140,200); border-radius: 10px; padding-top: 20px;}");
+    ui->gbStatistics->setStyleSheet("QGroupBox{background-color: rgba(225,175,180,200); border-radius: 10px; padding-top: 20px;}");
 }
 
 void MainWindow::makeConnections()
@@ -133,6 +145,7 @@ void MainWindow::makeConnections()
     connect(twTable, SIGNAL(cellClicked(int,int)), this, SLOT(updateEditorFields(int,int)));
     connect(ui->tbLog, SIGNAL(clicked()), logDialog, SLOT(show()));
     connect(ui->tbClearForm, SIGNAL(clicked()), this, SLOT(clearForm()));
+    connect(ui->tbRecycle, SIGNAL(clicked()), this, SLOT(recycle()));
     linkDialogs();
     linkMenu();
 
@@ -212,6 +225,43 @@ void MainWindow::updateVendorDialog()
 
 }
 
+void MainWindow::changeCartridge()
+{
+    QSqlQuery q(database);
+    QString prevCartridgeId = ui->leRequestCartridge->text();
+    QString newCartridgeId = changeCartridgeDialog->findChild<QLineEdit*>("leCartridgeIdToChange")->text().trimmed();
+    QString statusIdToSet = changeCartridgeDialog->findChild<QComboBox*>("cbPrevCartridgeStatus")->currentData().toString();
+    bool cartridgeOnWare = false;
+    if(q.exec(QString("SELECT cartridge_status from cartridge WHERE cartridge_id=%1").arg(newCartridgeId)))
+    {
+        toLog(LOG_OK, tr("Выборка статуса картриджа успешна"));
+        q.first();
+        cartridgeOnWare = (q.value(0).toInt() == 2);
+    }
+    else toLog(LOG_ERR, tr("Не удалось запросить статус картриджа: ") + q.lastError().text());
+
+    if(cartridgeOnWare)
+    {
+        QString query("UPDATE cartridge SET cartridge_status=%1 WHERE cartridge_id=%2");
+        if(q.exec(query.arg(statusIdToSet).arg(prevCartridgeId)))
+        {
+            toLog(LOG_OK, tr("Возврат картриджа выполнен успешно"));
+        }
+        else toLog(LOG_ERR, tr("Не удалось выполнить возврат картриджа: ") + q.lastError().text());
+
+        if(q.exec(query.arg(QString::number(1)).arg(newCartridgeId)))
+        {
+            toLog(LOG_OK, tr("Замена картриджа выполнена успешно"));
+        }
+        else toLog(LOG_ERR, tr("Не удалось выполнить замену картриджа: ") + q.lastError().text());
+        ui->leRequestCartridge->setText(newCartridgeId);
+        ui->tbEditRecord->click();
+    }
+    else QMessageBox::critical(this, tr("Ошибка"), tr("Не удалось выполнить замену картриджа.\nКартридж №%1 отсутствует на складе.").arg(newCartridgeId), QMessageBox::Ok, QMessageBox::NoButton);
+
+    changeCartridgeDialog->close();
+}
+
 void MainWindow::updateModelDialog()
 {
     QSqlQuery q(database);
@@ -222,22 +272,48 @@ void MainWindow::updateModelDialog()
         while(q.next()) cbVendor->addItem(q.value(1).toString(), q.value(0));
         toLog(LOG_OK, tr("Выборка списка моделей картриджей успешна"));
     }
-    else toLog(LOG_ERR, tr("Не удалось запросить список моделей картриджей: ") + q.lastError().text());
+    else
+    {
+        toLog(LOG_ERR, tr("Не удалось запросить список моделей картриджей: ") + q.lastError().text());
+        qDebug() << "f1";
+    }
 
     QComboBox* cbModel = modelDialog->findChild<QComboBox*>("cbModel");
     cbModel->clear();
+    ui->cbCartridgeModel->clear();
     if(q.exec("SELECT * FROM model ORDER BY model_name"))
     {
-        while(q.next()) cbModel->addItem(q.value(1).toString(), q.value(0));
+        while(q.next())
+        {
+            cbModel->addItem(q.value(1).toString(), q.value(0));
+            ui->cbCartridgeModel->addItem(q.value(1).toString(), q.value(0));
+       }
         toLog(LOG_OK, tr("Выборка списка моделей картриджей успешна"));
     }
-    else toLog(LOG_ERR, tr("Не удалось запросить список моделей картриджей: ") + q.lastError().text());
-
+    else
+    {
+        toLog(LOG_ERR, tr("Не удалось запросить список моделей картриджей: ") + q.lastError().text());
+        qDebug() << "f2";
+    }
     if(cbModel->currentText().isEmpty())
     {
         QLabel* lbImage = modelDialog->findChild<QLabel*>("lbImage");
         lbImage->setPixmap(QPixmap(":/null.png").scaled(512, 512, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
+}
+
+void MainWindow::updateChangeDialog()
+{
+    QComboBox* cbStatus = changeCartridgeDialog->findChild<QComboBox*>("cbPrevCartridgeStatus");
+    cbStatus->clear();
+    QSqlQuery q(database);
+    if(q.exec("SELECT * FROM status"))
+    {
+        while(q.next()) cbStatus->addItem(q.value(1).toString(), q.value(0));
+        cbStatus->setCurrentIndex(cbStatus->findData(2));
+        toLog(LOG_OK, tr("Выборка списка статусов успешна"));
+    }
+    else toLog(LOG_ERR, tr("Не удалось запросить список статусов картриджей: ") + q.lastError().text());
 }
 
 void MainWindow::updatePrefDepartmentDialog()
@@ -269,6 +345,8 @@ void MainWindow::updateModelDialogSelected(int current)
     QComboBox* cbVendor = modelDialog->findChild<QComboBox*>("cbVendor");
 
     QString modelID = cbModel->itemData(current).toString();
+    if(!modelID.isEmpty())
+    {
     QSqlQuery q(database);
 
     if(q.exec(QString("SELECT * FROM model WHERE model_id=%1").arg(modelID)))
@@ -292,20 +370,29 @@ void MainWindow::updateModelDialogSelected(int current)
         toLog(LOG_OK, tr("Выборка информации о модели картриджа успешна"));
     }
     else toLog(LOG_ERR, tr("Не удалось запросить информацию о модели картриджа: ") + q.lastError().text());
+    }
 }
 
-void MainWindow::updateEditorSelected(int current)
+void MainWindow::updateEditorSelected(int)
 {
     QSqlQuery q(database);
     QString modelID = cbCartridgeModel->currentData().toString();
-    if(q.exec(QString("SELECT model_vendor from model WHERE model_id = %1").arg(modelID)))
+    if(!modelID.isEmpty())
+    {
+    QString qry = QString("SELECT model_vendor from model WHERE model_id = %1").arg(modelID);
+    if(q.exec(qry))
     {
         q.first();
         QString vendorID = q.value(0).toString();
         cbCartridgeVendor->setCurrentIndex(cbCartridgeVendor->findData(vendorID));
         toLog(LOG_OK, tr("Выборка информации о производителе для модели картриджа успешна"));
     }
-    else toLog(LOG_ERR, tr("Не удалось запросить информацию о производителе для модели картриджа: ") + q.lastError().text());
+    else
+    {
+        toLog(LOG_ERR, tr("Не удалось запросить информацию о производителе для модели картриджа: ") + q.lastError().text());
+        qDebug() << qry;
+    }
+    }
 }
 
 void MainWindow::updateEditor()
@@ -399,6 +486,11 @@ void MainWindow::loadDialogs()
     lbImage->setAlignment(Qt::AlignCenter);
     f.close();
 
+    f.setFileName(":/changeCartridgeDialog.ui");
+    f.open(QFile::ReadOnly);
+    changeCartridgeDialog = (QDialog*)loader.load(&f);
+    changeCartridgeDialog->setWindowTitle(tr("Заявки - заменить картридж"));
+    f.close();
 }
 
 void MainWindow::loadSets()
@@ -597,6 +689,8 @@ void MainWindow::linkDialogs()
 
     QToolButton* logDialog_tbClear = logDialog->findChild<QToolButton*>("tbClear");
     connect(logDialog_tbClear, SIGNAL(clicked()), this, SLOT(clearLog()));
+    QPushButton* pbChangeCartridge = changeCartridgeDialog->findChild<QPushButton*>("pbChangeCartridge");
+    connect(pbChangeCartridge,SIGNAL(clicked()), this, SLOT(changeCartridge()));
 }
 
 void MainWindow::newEmploye()
@@ -777,7 +871,7 @@ void MainWindow::doSearch()
                 filter = " AND (model_compatibility LIKE '%" + searchText + "%')";
             break;
         }
-        orderBy =  " ORDER BY cartridge_id";
+        orderBy =  " ORDER BY cartridge_status, cartridge_cycle";
 
         hLabels  << tr("Номер")  << tr("Модель")  << tr("Производитель")  << tr("Цикл")  << tr("Статус")  << tr("Совместимость");
 
@@ -812,7 +906,7 @@ void MainWindow::doSearch()
                 filter = " AND (employe_name LIKE '%" + searchText + "%')";
             break;
         }
-        orderBy = " ORDER BY request_date";
+        orderBy = " ORDER BY request_id DESC";
         hLabels << tr("Номер")  << tr("Дата")  << tr("Автор")  << tr("Подразделение")  << tr("Картридж")  << tr("Исполнитель");
     }
     twTable->clear();
@@ -909,7 +1003,6 @@ void MainWindow::showModelDialog()
 {
     updateModelDialog();
     modelDialog->show();
-
 }
 
 void MainWindow::clearLog()
@@ -942,9 +1035,9 @@ void MainWindow::exportLog()
     }
 }
 
-void MainWindow::updateEditorFields(int row, int col)
+void MainWindow::updateEditorFields(int row, int)
 {
-    int colCount = twTable->columnCount();
+    //int colCount = twTable->columnCount();
     if(rbCartridges->isChecked())
     {
         QString cartridgeID, cartridgeModel, cartridgeVendor, cartridgeCycle, cartridgeStatus, cartridgeCompatibility;
@@ -1005,7 +1098,7 @@ void MainWindow::newRecord()
                 toLog(LOG_OK, tr("Новый картридж добавлен успешно"));
             }
         }
-        toLog(LOG_ERR, tr("Не удалось добавить новый картридж: ") + q.lastError().text());
+        else toLog(LOG_ERR, tr("Не удалось добавить новый картридж: ") + q.lastError().text());
     }
     else
     {
@@ -1055,6 +1148,42 @@ void MainWindow::newRecord()
         ui->leRequestEnvoy->setFocus();
     }
     showAllRecords();
+}
+
+void MainWindow::recycle()
+{
+    if(rbCartridges->isChecked())
+    {
+        if(ui->cbCartridgeStatus->currentData().toInt() == 3)
+        {
+            int cartridgeCycle = ui->leCartridgeCycle->text().toInt();
+            ++cartridgeCycle;
+            ui->leCartridgeCycle->setText(QString::number(cartridgeCycle));
+            ui->cbCartridgeStatus->setCurrentIndex(ui->cbCartridgeStatus->findData(2)); //need onWare value
+            ui->tbEditRecord->click();
+            QMessageBox::information(this, tr("Возврат картриджа на склад"), tr("Картридж принят с заправки"), QMessageBox::Ok);
+        }
+        else QMessageBox::critical(this, tr("Возврат картриджа на склад"), tr("Операция применима только для картриджей \nсо статусом \"на заправке\""), QMessageBox::Ok);
+
+    }
+    else
+    {
+        QString cartridgeId = ui->leRequestCartridge->text();
+        QSqlQuery q(database);
+        if(q.exec(QString("SELECT cartridge_status FROM cartridge WHERE cartridge_id=%1").arg(cartridgeId)))
+        {
+            q.first();
+            bool cartridgeInUse = (q.value(0).toInt() == 1);
+            if(cartridgeInUse)
+            {
+                changeCartridgeDialog->findChild<QLineEdit*>("leCartridgeIdToChange")->setText(ui->leRequestCartridge->text());
+                changeCartridgeDialog->show();
+            }
+            else QMessageBox::critical(this, tr("Замена картриджа"), tr("Операция применима только для картриджей \nсо статусом \"используется\""), QMessageBox::Ok);
+            toLog(LOG_OK, tr("Выборка статуса картриджа успешна"));
+        }
+        else toLog(LOG_ERR, tr("Не удалось получить статус картриджа: ") + q.lastError().text());
+    }
 }
 
 void MainWindow::editRecord()
@@ -1145,7 +1274,7 @@ void MainWindow::clearForm()
         ui->cbCartridgeModel->setCurrentIndex(0);
         updateEditorSelected(0);
         leCartridgeCycle->clear();
-        cbCartridgeStatus->setCurrentIndex(0);
+        cbCartridgeStatus->setCurrentIndex(cbCartridgeStatus->findData(2));
     }
     else
     {

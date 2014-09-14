@@ -21,7 +21,8 @@ FORMS    += mainwindow.ui \
     prefDatabaseDialog.ui \
     tableEditor.ui \
     modelDialog.ui \
-    logDialog.ui
+    logDialog.ui \
+    changeCartridgeDialog.ui
 
 RESOURCES += \
     res.qrc
