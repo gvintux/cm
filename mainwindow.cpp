@@ -146,6 +146,7 @@ void MainWindow::makeConnections()
     connect(ui->tbLog, SIGNAL(clicked()), logDialog, SLOT(show()));
     connect(ui->tbClearForm, SIGNAL(clicked()), this, SLOT(clearForm()));
     connect(ui->tbRecycle, SIGNAL(clicked()), this, SLOT(recycle()));
+    connect(ui->leSearch, SIGNAL(returnPressed()), ui->pbSearch, SLOT(click()));
     linkDialogs();
     linkMenu();
 
@@ -175,6 +176,7 @@ void MainWindow::updateFieldsCombo()
         swEditor->setCurrentIndex(1);
         updateEditorSelected(0);
         ui->gbEditor->setTitle(tr("Редактор картриджей"));
+        ui->tbRecycle->setText(tr("Вернуть с заправки"));
     }
     else
     {
@@ -186,6 +188,7 @@ void MainWindow::updateFieldsCombo()
         dteTime->setDateTime(QDateTime::currentDateTime());
         ui->leRequestEnvoy->setFocus();
         ui->gbEditor->setTitle(tr("Редактор заявок"));
+        ui->tbRecycle->setText(tr("Замена картриджа"));
     }
     showAllRecords();
 }

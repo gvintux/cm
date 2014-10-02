@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>842</width>
+    <width>927</width>
     <height>745</height>
    </rect>
   </property>
@@ -64,6 +64,9 @@
             <spacer name="horizontalSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -133,7 +136,7 @@
          <item>
           <widget class="QStackedWidget" name="swRecordInfo">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="requestPage">
             <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -319,11 +322,11 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1,0,1,10,1">
+          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0,0,0,0,0">
            <item>
-            <widget class="QToolButton" name="tbAddRecord">
+            <widget class="QPushButton" name="tbAddRecord">
              <property name="text">
-              <string>+</string>
+              <string>Добавить</string>
              </property>
              <property name="icon">
               <iconset resource="res.qrc">
@@ -338,9 +341,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QToolButton" name="tbEditRecord">
+            <widget class="QPushButton" name="tbEditRecord">
              <property name="text">
-              <string>=</string>
+              <string>Изменить</string>
              </property>
              <property name="icon">
               <iconset resource="res.qrc">
@@ -355,9 +358,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QToolButton" name="tbDeleteRecord">
+            <widget class="QPushButton" name="tbDeleteRecord">
              <property name="text">
-              <string>--</string>
+              <string>Удалить</string>
              </property>
              <property name="icon">
               <iconset resource="res.qrc">
@@ -372,26 +375,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QToolButton" name="tbRecycle">
+            <widget class="QPushButton" name="tbClearForm">
              <property name="text">
-              <string>...</string>
-             </property>
-             <property name="icon">
-              <iconset resource="res.qrc">
-               <normaloff>:/pic/action_recieve.png</normaloff>:/pic/action_recieve.png</iconset>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>32</width>
-               <height>32</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="tbClearForm">
-             <property name="text">
-              <string>0</string>
+              <string>Очистить</string>
              </property>
              <property name="icon">
               <iconset resource="res.qrc">
@@ -406,9 +392,29 @@
             </widget>
            </item>
            <item>
+            <widget class="QPushButton" name="tbRecycle">
+             <property name="text">
+              <string>recycle</string>
+             </property>
+             <property name="icon">
+              <iconset resource="res.qrc">
+               <normaloff>:/pic/action_recieve.png</normaloff>:/pic/action_recieve.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="horizontalSpacer_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -421,7 +427,7 @@
            <item>
             <widget class="QToolButton" name="tbLog">
              <property name="text">
-              <string>O</string>
+              <string/>
              </property>
              <property name="icon">
               <iconset resource="res.qrc">
@@ -570,7 +576,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>842</width>
+     <width>927</width>
      <height>27</height>
     </rect>
    </property>

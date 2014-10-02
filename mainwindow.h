@@ -79,9 +79,9 @@ private:
 
     QPushButton*            pbSearch;
 
-    QToolButton*            tbNewRecord;
-    QToolButton*            tbEditRecord;
-    QToolButton*            tbDeleteRecord;
+    QPushButton*            tbNewRecord;
+    QPushButton*            tbEditRecord;
+    QPushButton*            tbDeleteRecord;
 
     QTableWidget*           twTable;
 
